@@ -89,7 +89,7 @@ PORT_DEVICE
 IMAGE_DIRECTORY
 
 # Find the images to be ported.
-clear; find $P_IMAGES -type f -iname "*.*" | while read line; do
+clear; find $P_IMAGES -type f -iname "*.png" -o -iname "*.jpg" | while read line; do
 		# Remember the directory and filename to each image.
 		local FILE="$(basename "$line")"
 		local FILEDIR="$(dirname "$line")"
