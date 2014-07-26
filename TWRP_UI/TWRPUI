@@ -114,14 +114,14 @@ DONT_KNOW_JACK() {
 			CALCULATE_HEIGHT
 			echo " "
 			echo Porting value="'$VALUE_CONFIRM'" to value="'$FINALH'"
-			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALH" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 		else
 			# Need this variable to calculate.
 			SIZEW=$(echo $VALUE_CONFIRM)
 			CALCULATE_WIDTH
 			echo " "
 			echo Porting value="'$VALUE_CONFIRM'" to value="'$FINALW'"
-			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALW" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 		fi
 }
 
@@ -140,7 +140,7 @@ SED_CHANGE_WORD() {
 }
 
 # Need to write to two new files in order to modify the xml line by line properly.
-# TEMPFILE is located in the while loop.
+# $PORTFILE is located in the while loop.
 PORTFILE=$(echo UI_PORT.xml)
 TEMPFILE=$(echo CONVERTUI.xml)
 	if [ ! -f "$PORT_UI/$TEMPFILE" ]; then
@@ -153,7 +153,7 @@ TEMPFILE=$(echo CONVERTUI.xml)
 # Read the ui.xml file so we can find the proper values for a successful port.
 # Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
 # Add 'IFS=' to insure each line read still contains it's tabs.
-clear; { cat $PORT_UI/ui.xml; echo; } | while IFS= read -r line; do
+clear; { cat $PORT_UI/ui.xml; echo; } | while IFS= read line; do
 	if [ -f "$PORT_UI/$PORTFILE" ]; then
 		ECHO=$(cat "$PORT_UI/$TEMPFILE")
 		echo "$ECHO" >> $PORT_UI/$PORTFILE
@@ -180,7 +180,7 @@ XX() {
 			SIZEW=$(echo $X_CONFIRM)
 			CALCULATE_WIDTH
 			echo Porting x="'$X_CONFIRM'" to x="'$FINALW'"
-			SED_CHANGE_WORD "$X_CONFIRM" "$FINALW" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$X_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the YY function.
 			YY
 		fi
@@ -200,7 +200,7 @@ YY() {
 			SIZEH=$(echo $Y_CONFIRM)
 			CALCULATE_HEIGHT
 			echo Porting y="'$Y_CONFIRM'" to y="'$FINALH'"
-			SED_CHANGE_WORD "$Y_CONFIRM" "$FINALH" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$Y_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the WWIDTH function.
 			WWIDTH
 		fi
@@ -220,7 +220,7 @@ WWIDTH() {
 			SIZEW=$(echo $WIDTH_CONFIRM)
 			CALCULATE_WIDTH
 			echo Porting width="'$WIDTH_CONFIRM'" to width="'$FINALW'"
-			SED_CHANGE_WORD "$WIDTH_CONFIRM" "$FINALW" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$WIDTH_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the HHEIGHT function.
 			HHEIGHT
 		fi
@@ -240,7 +240,7 @@ HHEIGHT() {
 			SIZEH=$(echo $HEIGHT_CONFIRM)
 			CALCULATE_HEIGHT
 			echo Porting height="'$HEIGHT_CONFIRM'" to height="'$FINALH'"
-			SED_CHANGE_WORD "$HEIGHT_CONFIRM" "$FINALH" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$HEIGHT_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the HH function.
 			HH
 		fi
@@ -260,7 +260,7 @@ HH() {
 			SIZEH=$(echo $H_CONFIRM)
 			CALCULATE_HEIGHT
 			echo Porting h="'$H_CONFIRM'" to h="'$FINALH'"
-			SED_CHANGE_WORD "$H_CONFIRM" "$FINALH" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$H_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the WW function.
 			WW
 		fi
@@ -280,7 +280,7 @@ WW() {
 			SIZEW=$(echo $W_CONFIRM)
 			CALCULATE_WIDTH
 			echo Porting w="'$W_CONFIRM'" to w="'$FINALW'"
-			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "$PORT_UI/$FILE"
+			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the VVALUE function.
 			VVALUE
 		fi
