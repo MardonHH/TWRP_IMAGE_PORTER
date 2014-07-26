@@ -27,3 +27,5 @@ There are many values which need to be taken in to consideration such as x=, y=,
 This script WILL NOT PORT the keyboardtemplate found inside the ui file.
 
 Such values which I am referring to are long01=, or key01=. These are examples and after trying with sed, egrep, awk and so forth I ultimately failed so please make sure you manually port them after using this script - it won't take that long.
+
+Please insure you change the font size accordingly to your device. This script WILL NOT do it for you.
