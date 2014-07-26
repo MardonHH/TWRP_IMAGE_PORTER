@@ -30,8 +30,8 @@ BASE_DEVICE() {
 	BASE_RESOLUTION_CHECK=$(echo $B_RES_W'x'$B_RES_H)
 		if [ "$BASE_RESOLUTION" == "$BASE_RESOLUTION_CHECK" ] ; then
  			# Your Resolution
- 			BASEW=$(echo $B_RES_W)
- 			BASEH=$(echo $B_RES_H)
+ 			BASEW=$(echo "$B_RES_W")
+ 			BASEH=$(echo "$B_RES_H")
 		else
 			echo " "
 			echo Please input correct layout for your resolution.
@@ -51,8 +51,8 @@ PORT_DEVICE() {
 	PORT_RESOLUTION_CHECK=$(echo $P_RES_W'x'$P_RES_H)
 		if [ "$PORT_RESOLUTION" == "$PORT_RESOLUTION_CHECK" ] ; then
  			# Their Resolution
- 			PORTW=$(echo $P_RES_W)
- 			PORTH=$(echo $P_RES_H)
+ 			PORTW=$(echo "$P_RES_W")
+ 			PORTH=$(echo "$P_RES_H")
 		else
 			echo " "
 			echo Please input correct layout for their resolution.
@@ -69,7 +69,7 @@ UI_DIRECTORY() {
 	read PORT_XML
 		# Check to see if directory exists
 		if [ -d "$PORT_XML" ] ; then
- 			PORT_UI=$(echo $PORT_XML)
+ 			PORT_UI=$(echo "$PORT_XML")
 		else
 			echo " "
 			echo $PORT_XML is not a directory
@@ -153,7 +153,7 @@ TEMPFILE=$(echo CONVERTUI.xml)
 # Read the ui.xml file so we can find the proper values for a successful port.
 # Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
 # Add 'IFS=' to insure each line read still contains it's tabs.
-clear; { cat $PORT_UI/ui.xml; echo; } | while IFS= read line; do
+clear; { cat $PORT_UI/ui.xml; echo; } | while IFS= read -r line; do
 	if [ -f "$PORT_UI/$PORTFILE" ]; then
 		ECHO=$(cat "$PORT_UI/$TEMPFILE")
 		echo "$ECHO" >> $PORT_UI/$PORTFILE
