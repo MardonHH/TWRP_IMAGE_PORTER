@@ -23,58 +23,58 @@
 # Have user input both resolutions and the storage location of the ui.xml file to be ported.
 # If input is invalid then loop back to the function until they get it right.
 BASE_DEVICE() {
-	clear; echo Enter your resolution, ex. 480x800:
+	clear; echo "Enter your resolution, ex. 480x800:"
 	read BASE_RESOLUTION
-	B_RES_W=$(echo $BASE_RESOLUTION | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
-	B_RES_H=$(echo $BASE_RESOLUTION | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
-	BASE_RESOLUTION_CHECK=$(echo $B_RES_W'x'$B_RES_H)
+	B_RES_W=$(echo "$BASE_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+	B_RES_H=$(echo "$BASE_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+	BASE_RESOLUTION_CHECK=$(echo "$B_RES_W"'x'"$B_RES_H")
 		if [ "$BASE_RESOLUTION" == "$BASE_RESOLUTION_CHECK" ] ; then
  			# Your Resolution
  			BASEW=$(echo "$B_RES_W")
  			BASEH=$(echo "$B_RES_H")
 		else
 			echo " "
-			echo Please input correct layout for your resolution.
-			echo An example would be, 480x800.
+			echo "Please input correct layout for your resolution."
+			echo "An example would be, 480x800."
 			echo " "
-			echo Press ANY key when ready...
+			echo "Press ANY key when ready..."
 			read -n1 any_key
 			clear; BASE_DEVICE
 		fi
 }
 
 PORT_DEVICE() {
-	clear; echo Enter their resolution, ex. 720x1280:
+	clear; echo "Enter their resolution, ex. 720x1280:"
 	read PORT_RESOLUTION
-	P_RES_W=$(echo $PORT_RESOLUTION | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
-	P_RES_H=$(echo $PORT_RESOLUTION | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
-	PORT_RESOLUTION_CHECK=$(echo $P_RES_W'x'$P_RES_H)
+	P_RES_W=$(echo "$PORT_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+	P_RES_H=$(echo "$PORT_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+	PORT_RESOLUTION_CHECK=$(echo "$P_RES_W"'x'"$P_RES_H")
 		if [ "$PORT_RESOLUTION" == "$PORT_RESOLUTION_CHECK" ] ; then
  			# Their Resolution
  			PORTW=$(echo "$P_RES_W")
  			PORTH=$(echo "$P_RES_H")
 		else
 			echo " "
-			echo Please input correct layout for their resolution.
-			echo An example would be, 720x1280.
+			echo "Please input correct layout for their resolution."
+			echo "An example would be, 720x1280."
 			echo " "
-			echo Press ANY key when ready...
+			echo "Press ANY key when ready..."
 			read -n1 any_key
 			clear; PORT_DEVICE
 		fi
 }
 
 UI_DIRECTORY() {
-	clear; echo Enter directory to the ui.xml file, ex. /sdcard/TWRP:
+	clear; echo "Enter directory to the ui.xml file, ex. /sdcard/TWRP:"
 	read PORT_XML
 		# Check to see if directory exists
 		if [ -d "$PORT_XML" ] ; then
  			PORT_UI=$(echo "$PORT_XML")
 		else
 			echo " "
-			echo $PORT_XML is not a directory
+			echo ""$PORT_XML" is not a directory"
 			echo " "
-			echo Press ANY key when ready...
+			echo "Press ANY key when ready..."
 			read -n1 any_key
 			clear; UI_DIRECTORY
 		fi
@@ -82,7 +82,7 @@ UI_DIRECTORY() {
 
 # Call on functions here for user friendliness.
 # Let user know about the ui.xml file.
-clear; echo Insure that the .xml file is still named, ui.xml, or this script will fail!
+clear; echo "Insure that the .xml file is still named, ui.xml, or this script will fail!"
 sleep 5
 UI_DIRECTORY
 BASE_DEVICE
@@ -110,17 +110,17 @@ CALCULATE_HEIGHT() {
 DONT_KNOW_JACK() {
 		if [ "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "H" ] ; then
 			# Need this variable to calculate.
-			SIZEH=$(echo $VALUE_CONFIRM)
+			SIZEH=$(echo "$VALUE_CONFIRM")
 			CALCULATE_HEIGHT
 			echo " "
-			echo Porting value="'$VALUE_CONFIRM'" to value="'$FINALH'"
+			echo "Porting value='$VALUE_CONFIRM' to value='$FINALH'"
 			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 		else
 			# Need this variable to calculate.
-			SIZEW=$(echo $VALUE_CONFIRM)
+			SIZEW=$(echo "$VALUE_CONFIRM")
 			CALCULATE_WIDTH
 			echo " "
-			echo Porting value="'$VALUE_CONFIRM'" to value="'$FINALW'"
+			echo "Porting value='$VALUE_CONFIRM' to value='$FINALW'"
 			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 		fi
 }
@@ -144,25 +144,25 @@ SED_CHANGE_WORD() {
 PORTFILE=$(echo UI_PORT.xml)
 TEMPFILE=$(echo CONVERTUI.xml)
 	if [ ! -f "$PORT_UI/$TEMPFILE" ]; then
-		touch $PORT_UI/$TEMPFILE
+		touch "$PORT_UI/$TEMPFILE"
 	else
-		rm -f $PORT_UI/$TEMPFILE
-		touch $PORT_UI/$TEMPFILE
+		rm -f "$PORT_UI/$TEMPFILE"
+		touch "$PORT_UI/$TEMPFILE"
 	fi
 
 # Read the ui.xml file so we can find the proper values for a successful port.
 # Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
 # Add 'IFS=' to insure each line read still contains it's tabs.
-clear; { cat $PORT_UI/ui.xml; echo; } | while IFS= read -r line; do
+clear; { cat "$PORT_UI/ui.xml"; echo; } | while IFS= read -r line; do
 	if [ -f "$PORT_UI/$PORTFILE" ]; then
 		ECHO=$(cat "$PORT_UI/$TEMPFILE")
-		echo "$ECHO" >> $PORT_UI/$PORTFILE
+		echo "$ECHO" >> "$PORT_UI/$PORTFILE"
 		# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
 		wait </dev/tty
 	else
-		touch $PORT_UI/$PORTFILE
+		touch "$PORT_UI/$PORTFILE"
 	fi
-echo "$line" > $PORT_UI/$TEMPFILE
+echo "$line" > "$PORT_UI/$TEMPFILE"
 # The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
 wait </dev/tty
 # Search for x values.
@@ -175,11 +175,11 @@ XX() {
 			YY
 		else
 			# Save the value in a variable.
-			X_CONFIRM=$(echo $X)
+			X_CONFIRM=$(echo "$X")
 			# Need this variable to calculate.
-			SIZEW=$(echo $X_CONFIRM)
+			SIZEW=$(echo "$X_CONFIRM")
 			CALCULATE_WIDTH
-			echo Porting x="'$X_CONFIRM'" to x="'$FINALW'"
+			echo "Porting x='$X_CONFIRM' to x='$FINALW'"
 			SED_CHANGE_WORD "$X_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the YY function.
 			YY
@@ -195,11 +195,11 @@ YY() {
 			WWIDTH
 		else
 			# Save the value in a variable.
-			Y_CONFIRM=$(echo $Y)
+			Y_CONFIRM=$(echo "$Y")
 			# Need this variable to calculate.
-			SIZEH=$(echo $Y_CONFIRM)
+			SIZEH=$(echo "$Y_CONFIRM")
 			CALCULATE_HEIGHT
-			echo Porting y="'$Y_CONFIRM'" to y="'$FINALH'"
+			echo "Porting y='$Y_CONFIRM' to y='$FINALH'"
 			SED_CHANGE_WORD "$Y_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the WWIDTH function.
 			WWIDTH
@@ -215,11 +215,11 @@ WWIDTH() {
 			HHEIGHT
 		else
 			# Save the value in a variable.
-			WIDTH_CONFIRM=$(echo $WIDTH)
+			WIDTH_CONFIRM=$(echo "$WIDTH")
 			# Need this variable to calculate.
-			SIZEW=$(echo $WIDTH_CONFIRM)
+			SIZEW=$(echo "$WIDTH_CONFIRM")
 			CALCULATE_WIDTH
-			echo Porting width="'$WIDTH_CONFIRM'" to width="'$FINALW'"
+			echo "Porting width='$WIDTH_CONFIRM' to width='$FINALW'"
 			SED_CHANGE_WORD "$WIDTH_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the HHEIGHT function.
 			HHEIGHT
@@ -235,11 +235,11 @@ HHEIGHT() {
 			HH
 		else
 			# Save the value in a variable.
-			HEIGHT_CONFIRM=$(echo $HEIGHT)
+			HEIGHT_CONFIRM=$(echo "$HEIGHT")
 			# Need this variable to calculate.
-			SIZEH=$(echo $HEIGHT_CONFIRM)
+			SIZEH=$(echo "$HEIGHT_CONFIRM")
 			CALCULATE_HEIGHT
-			echo Porting height="'$HEIGHT_CONFIRM'" to height="'$FINALH'"
+			echo "Porting height='$HEIGHT_CONFIRM' to height='$FINALH'"
 			SED_CHANGE_WORD "$HEIGHT_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the HH function.
 			HH
@@ -255,11 +255,11 @@ HH() {
 			WW
 		else
 			# Save the value in a variable.
-			H_CONFIRM=$(echo $H)
+			H_CONFIRM=$(echo "$H")
 			# Need this variable to calculate.
-			SIZEH=$(echo $H_CONFIRM)
+			SIZEH=$(echo "$H_CONFIRM")
 			CALCULATE_HEIGHT
-			echo Porting h="'$H_CONFIRM'" to h="'$FINALH'"
+			echo "Porting h='$H_CONFIRM' to h='$FINALH'"
 			SED_CHANGE_WORD "$H_CONFIRM" "$FINALH" "$PORT_UI/$TEMPFILE"
 			# Call the WW function.
 			WW
@@ -275,11 +275,11 @@ WW() {
 			VVALUE
 		else
 			# Save the value in a variable.
-			W_CONFIRM=$(echo $W)
+			W_CONFIRM=$(echo "$W")
 			# Need this variable to calculate.
-			SIZEW=$(echo $W_CONFIRM)
+			SIZEW=$(echo "$W_CONFIRM")
 			CALCULATE_WIDTH
-			echo Porting w="'$W_CONFIRM'" to w="'$FINALW'"
+			echo "Porting w='$W_CONFIRM' to w='$FINALW'"
 			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
 			# Call the VVALUE function.
 			VVALUE
@@ -293,13 +293,13 @@ VVALUE() {
 			echo null > /dev/null
 		else
 			# Save the value in a variable.
-			VALUE_CONFIRM=$(echo $VALUE)
+			VALUE_CONFIRM=$(echo "$VALUE")
 			echo " "
 			echo The value below must be determined by the human mind!
 			echo " "
 			# Don't quote $line for easy reading.
 			echo $line
-			echo Please type and enter, W for width or H for height:
+			echo "Please type and enter, W for width or H for height:"
 			read HUMAN_ANSWER </dev/tty
 			# Call the YOUR_MIND function.
 			YOUR_MIND
@@ -311,8 +311,8 @@ YOUR_MIND() {
 	 	DONT_KNOW_JACK
 	else
 	 	echo " "
-	 	echo Please enter either W for Width or H for Height!
-	 	echo Press ANY key to try again!
+	 	echo "Please enter either W for Width or H for Height!"
+	 	echo "Press ANY key to try again!"
 	 	read -n 1 any_key </dev/tty
 		# Call the VVALUE function.
 	 	VVALUE
@@ -324,4 +324,4 @@ XX
 wait </dev/tty ;
 done
 # Remove temporary file after while loop has finished.
-rm -f $PORT_UI/$TEMPFILE
+rm -f "$PORT_UI/$TEMPFILE"
