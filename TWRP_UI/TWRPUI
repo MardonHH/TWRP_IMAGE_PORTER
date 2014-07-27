@@ -306,7 +306,7 @@ VVALUE() {
 		fi
 }
 YOUR_MIND() {
-	if [ "$HUMAN_ANSWER" == "w" -o "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "W" -o "$HUMAM_ANSWER" == "H" ]; then
+	if [ "$HUMAN_ANSWER" == "w" -o "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "W" -o "$HUMAN_ANSWER" == "H" ]; then
 		# Call the DONT_KNOW_JACK function.
 	 	DONT_KNOW_JACK
 	else
