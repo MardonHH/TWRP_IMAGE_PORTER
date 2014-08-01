@@ -20,6 +20,21 @@
 # 480 / $.$ = $.$$
 # Round ending value either up or down based on .5 to the nearest integer accordingly.
 
+# Colors to be added in future update.
+# Color commands for usage and notes.
+# BLACK="\033[30m"
+# RED="\033[31m"
+# GREEN="\033[32m"
+# YELLOW="\033[33m"
+# BLUE="\033[34m"
+# PINK="\033[35m"
+# CYAN="\033[36m"
+# WHITE="\033[37m"
+# NORMAL="\033[0;39m"
+
+#Example for using colors:
+# echo -e $GREEN this text is green $NORMAL and this is normal
+
 # Have user input both resolutions and the storage location of the ui.xml file to be ported.
 # If input is invalid then loop back to the function until they get it right.
 BASE_DEVICE() {
@@ -167,8 +182,9 @@ echo "$line" > "$PORT_UI/$TEMPFILE"
 wait </dev/tty
 # Search for x values.
 XX() {
-	X=$(echo "$line" | egrep -o 'x="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$X" -o "$X" == "0" -o "$X" == "0123456789" ]; then
+	X=$(echo "$line" | egrep -o ' x="[0-9]+" ' | egrep -o '[0-9]+')
+	XCHECK=$(echo "$line" | egrep -o ' x="[0-9]+" ')
+		if [ -z "$XCHECK" -o "$X" == "0" ]; then
 			# Dump empty value.
 			echo null > /dev/null
 			# Call the YY function.
@@ -187,8 +203,9 @@ XX() {
 }
 # Search for y values.
 YY() {
-	Y=$(echo "$line" | egrep -o 'y="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$Y" -o "$Y" == "0" -o "$Y" == "0123456789" ]; then
+	Y=$(echo "$line" | egrep -o ' y="[0-9]+" ' | egrep -o '[0-9]+')
+	YCHECK=$(echo "$line" | egrep -o ' y="[0-9]+" ')
+		if [ -z "$YCHECK" -o "$Y" == "0" ]; then
 			# Dump empty value.
 			echo null > /dev/null
 			# Call the WWIDTH function.
@@ -207,8 +224,9 @@ YY() {
 }
 # Search for width 'width=' values.
 WWIDTH() {
-	WIDTH=$(echo "$line" | egrep -o 'width="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$WIDTH" -o "$WIDTH" == "0" -o "$WIDTH" == "0123456789" ]; then
+	WIDTH=$(echo "$line" | egrep -o ' width="[0-9]+" ' | egrep -o '[0-9]+')
+	WIDTHCHECK=$(echo "$line" | egrep -o ' width="[0-9]+" ')
+		if [ -z "$WIDTHCHECK" -o "$WIDTH" == "0" ]; then
 			# Dump empty values.
 	 		echo null > /dev/null
 			# Call the HHEIGHT function.
@@ -227,8 +245,9 @@ WWIDTH() {
 }
 # Search for height 'height=' values.
 HHEIGHT() {
-	HEIGHT=$(echo "$line" | egrep -o 'height="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$HEIGHT" -o "$HEIGHT" == "0" -o "$HEIGHT" == "0123456789" ]; then
+	HEIGHT=$(echo "$line" | egrep -o ' height="[0-9]+" ' | egrep -o '[0-9]+')
+	HEIGHTCHECK=$(echo "$line" | egrep -o ' height="[0-9]+" ')
+		if [ -z "$HEIGHTCHECK" -o "$HEIGHT" == "0" ]; then
 			# Dump empty values.
 			echo null > /dev/null
 			# Call the HH function.
@@ -247,8 +266,9 @@ HHEIGHT() {
 }
 # Search for height 'h=' values.
 HH() {
-	H=$(echo "$line" | egrep -o 'h="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$H" -o "$H" == "0" -o "$H" == "0123456789" ]; then
+	H=$(echo "$line" | egrep -o ' h="[0-9]+" ' | egrep -o '[0-9]+')
+	HCHECK=$(echo "$line" | egrep -o ' h="[0-9]+" ')
+		if [ -z "$HCHECK" -o "$H" == "0" ]; then
 			# Dump empty values.
 			echo null > /dev/null
 			# Call the WW function.
@@ -267,8 +287,9 @@ HH() {
 }
 # Search for width 'w=' values.
 WW() {
-	W=$(echo "$line" | egrep -o 'w="[0-9]+"' | egrep -o '[0-9]+')
-		if [ -z "$W" -o "$W" == "0" -o "$W" == "0123456789" ]; then
+	W=$(echo "$line" | egrep -o ' w="[0-9]+" ' | egrep -o '[0-9]+')
+	WCHECK=$(echo "$line" | egrep -o ' w="[0-9]+" ')
+		if [ -z "$WCHECK" -o "$W" == "0" ]; then
 			# Dump empty values.
 			echo null > /dev/null
 			# Call the VVALUE function.
@@ -287,8 +308,9 @@ WW() {
 }
 # Search for 'value' values. These values are a special case and will require the user to decide.
 VVALUE() {
-	VALUE=$(echo "$line" | egrep -o 'value="[0-9]+"' | egrep -o '[0-9]+';)
-		if [ -z "$VALUE" -o "$VALUE" == "0" -o "$VALUE" == "1" -o "$VALUE" == "0123456789" ]; then
+	VALUE=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
+	VALUECHECK=$(echo "$line" | egrep -o ' value="[0-9]+" ')
+		if [ -z "$VALUECHECK" -o "$VALUE" == "0" -o "$VALUE" == "1" ]; then
 			# Dump empty values.
 			echo null > /dev/null
 		else
