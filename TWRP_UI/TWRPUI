@@ -292,8 +292,8 @@ WW() {
 		if [ -z "$WCHECK" -o "$W" == "0" ]; then
 			# Dump empty values.
 			echo null > /dev/null
-			# Call the VVALUE function.
-			VVALUE
+			# Call the VVALUE_OVERHAUL function.
+			VVALUE_OVERHAUL
 		else
 			# Save the value in a variable.
 			W_CONFIRM=$(echo "$W")
@@ -302,7 +302,42 @@ WW() {
 			CALCULATE_WIDTH
 			echo "Porting w='$W_CONFIRM' to w='$FINALW'"
 			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "$PORT_UI/$TEMPFILE"
-			# Call the VVALUE function.
+			# Call the VVALUE_OVERHAUL function.
+			VVALUE_OVERHAUL
+		fi
+}
+# Search for 'value' values which can be recognized by a special character and handled automatically.
+# Set variables for easy identification.
+# Use if, elif, and else statement to process each outcome.
+# Set human answer then call the DONT_KNOW_JACK function
+VVALUE_OVERHAUL() {
+	VARIABLE_NAME_X=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x" ')
+	VARIABLE_NAME_Y=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y" ')
+	VARIABLE_NAME_W=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w" ')
+	VARIABLE_NAME_H=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h" ')
+	VARIABLE_NAME_WIDTH=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width" ')
+	VARIABLE_NAME_HEIGHT=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height" ')
+	VALUE_CONFIRM=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
+		if [ -n "$VARIABLE_NAME_X" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_Y" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_W" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_H" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_WIDTH" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_HEIGHT" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		else
+			# Call on VVALUE function.
 			VVALUE
 		fi
 }
