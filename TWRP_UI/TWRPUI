@@ -165,6 +165,13 @@ TEMPFILE=$(echo CONVERTUI.xml)
 		touch "$PORT_UI/$TEMPFILE"
 	fi
 
+# Add my signature before we begin.
+# This is my work after all.
+# Only the original TWRP authors to the original TWRP themes have my permission to remove this signature.
+# If you are porting someone else's work using this script then this signature will remain intact.
+old=$(cat "$PORT_UI/ui.xml" | egrep -o '<description>[0-9 A-Z a-z]+</description>' | egrep -o '[0-9 A-Z a-z]+<' | egrep -o '[0-9 A-Z a-z]+')
+sed -i "s/$old/$old Ported By Modding.MyMind/g" "$PORT_UI/ui.xml"
+
 # Read the ui.xml file so we can find the proper values for a successful port.
 # Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
 # Add 'IFS=' to insure each line read still contains it's tabs.
