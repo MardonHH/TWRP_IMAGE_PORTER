@@ -4,7 +4,9 @@ TWRP_IMAGE_PORTER
 Written by Modding.MyMind
 XDA Senior Member ©2014
 
-# Requires Busybox, and GraphicsMagick!
+# Requires Busybox, and GraphicsMagick (gm)!
+
+The gm binary in my repo is cross compiled for ARM devices. If someone wishes to compile gm for MIPS or x86, please share with me so I may include it to my repo. I only have an ARM based device so there is no point in me compiling gm for MIPS or x86 since I have no way to test and confirm that they work.
 
 This script will port images from one device resolution to another device resolution using accurate calculations.
 
