@@ -319,28 +319,52 @@ WW() {
 # Set human answer then call the DONT_KNOW_JACK function
 VVALUE_OVERHAUL() {
 	VARIABLE_NAME_X=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x" ')
+	VARIABLE_NAME_X2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_Y=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y" ')
+	VARIABLE_NAME_Y2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_W=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w" ')
+	VARIABLE_NAME_W2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_H=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h" ')
+	VARIABLE_NAME_H2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_WIDTH=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width" ')
+	VARIABLE_NAME_WIDTH2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VARIABLE_NAME_HEIGHT=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height" ')
+	VARIABLE_NAME_HEIGHT2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
 	VALUE_CONFIRM=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
 		if [ -n "$VARIABLE_NAME_X" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_X2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=w
 			DONT_KNOW_JACK
 		elif [ -n "$VARIABLE_NAME_Y" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=h
 			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_Y2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
 		elif [ -n "$VARIABLE_NAME_W" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_W2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=w
 			DONT_KNOW_JACK
 		elif [ -n "$VARIABLE_NAME_H" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=h
 			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_H2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
 		elif [ -n "$VARIABLE_NAME_WIDTH" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=w
 			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_WIDTH2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
 		elif [ -n "$VARIABLE_NAME_HEIGHT" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_HEIGHT2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
 			HUMAN_ANSWER=h
 			DONT_KNOW_JACK
 		else
