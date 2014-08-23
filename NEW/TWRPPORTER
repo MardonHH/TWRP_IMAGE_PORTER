@@ -1,0 +1,460 @@
+#!/system/bin/sh
+
+# Written by Modding.MyMind/ModdingMyMind
+# XDA Senior Member ©2014
+# AF Senior Member/Guide ©2014
+
+GOTOTWRPIMAGE() {
+# Find the images to be ported.
+clear; find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg" | while read line; do
+		# Remember the directory and filename to each image.
+		local IMAGEFILE="$(basename "${line}")"
+		local IMAGEFILEDIR="$(dirname "${line}")"
+		CHECK=$(find "${IMAGEFILEDIR}" -type f -iname "${IMAGEFILE}" | egrep -o '[0-9]+x[0-9]+' | wc -l)
+		 	# Check if filename has numbers which resemble a resolution and temporarily remove them to prevent errors while porting.
+		 	if [[ $CHECK -gt 0 ]]; then
+		 	 	TEMPORARY_IMAGEFILE=`echo "${IMAGEFILE}" | sed -e "s/[0-9]//g"`
+		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${IMAGEFILE}" "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
+		 	 	# Determine original width and height of each image.
+		 	 	SIZEW=$(gm identify "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+		 	 	SIZEH=$(gm identify "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+		 	else
+		 	 	SIZEW=$(gm identify "${IMAGEFILEDIR}"/"${IMAGEFILE}" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+		 	 	SIZEH=$(gm identify "${IMAGEFILEDIR}"/"${IMAGEFILE}" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+		 	fi
+		# Calculate old size for new size of each image.
+		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
+		NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
+		MODH=$(awk 'BEGIN{print "'$PORTH'"/"'$SIZEH'"}')
+		NEWH=$(awk 'BEGIN{print "'$BASEH'"/"'$MODH'"}')
+		# Round fractions up and down for each image.
+		FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
+		FINALH=$(awk 'BEGIN{print int("'$NEWH'"+0.5)}')
+		 	if [[ $CHECK -gt 0 ]]; then
+		 	 	# Add extra echo for spacing between loops
+		 	 	echo " "
+		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
+		 	 	# Convert images to new size.
+		 	 	gm convert "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}"
+		 	 	busybox mv -f "${IMAGEFILEDIR}"/"${TEMPORARY_IMAGEFILE}" "${IMAGEFILEDIR}"/"${IMAGEFILE}"
+		 	else
+		 	 	# Add extra echo for spacing between loops
+		 	 	echo " "
+		 	 	echo Porting "${IMAGEFILE}" from $SIZEW'x'$SIZEH to $FINALW'x'$FINALH
+		 	 	# Convert image to new size.
+		 	 	gm convert "${IMAGEFILEDIR}"/"${IMAGEFILE}" -resize $FINALW'x'$FINALH'!' "${IMAGEFILEDIR}"/"${IMAGEFILE}"
+		 	fi;
+done
+}
+
+GOTOTWRPUI() {
+# Call this function during the while loop.
+CALCULATE_WIDTH() {
+		# Calculate old size for new size of each value.
+		MODW=$(awk 'BEGIN{print "'$PORTW'"/"'$SIZEW'"}')
+		NEWW=$(awk 'BEGIN{print "'$BASEW'"/"'$MODW'"}')
+		# Round fractions up and down for each value.
+		FINALW=$(awk 'BEGIN{print int("'$NEWW'"+0.5)}')
+}
+
+# Call this function during the while loop.
+CALCULATE_HEIGHT() {
+		# Calculate old size for new size of each value.
+		MODH=$(awk 'BEGIN{print "'$PORTH'"/"'$SIZEH'"}')
+		NEWH=$(awk 'BEGIN{print "'$BASEH'"/"'$MODH'"}')
+		# Round fractions up and down for each value.
+		FINALH=$(awk 'BEGIN{print int("'$NEWH'"+0.5)}')
+}
+
+# Call this function in the while loop for values which needs assistance from the human mind.
+DONT_KNOW_JACK() {
+		if [ "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "H" ] ; then
+			# Need this variable to calculate.
+			SIZEH=$(echo "$VALUE_CONFIRM")
+			CALCULATE_HEIGHT
+			echo " "
+			echo "Porting value='$VALUE_CONFIRM' to value='$FINALH'"
+			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
+		else
+			# Need this variable to calculate.
+			SIZEW=$(echo "$VALUE_CONFIRM")
+			CALCULATE_WIDTH
+			echo " "
+			echo "Porting value='$VALUE_CONFIRM' to value='$FINALW'"
+			SED_CHANGE_WORD "$VALUE_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
+		fi
+}
+
+# Sets variables for changing requested text.
+# Call this function during the while loop.
+SED_CHANGE_WORD() {
+	# $1 - What we're changing
+	# $2 - To what we're changing
+	# $3 - File location for that
+	# $4 - Unique delimiter (optional)
+	if [[ -z "$4" ]]; then
+		sed -i 's/'"$1"'/'"$2"'/g' "$3"
+	else
+		sed -i 's'"$4""$1""$4""$2""$4"'g' "$3"
+	fi
+}
+
+# Need to write to two new files in order to modify the xml line by line properly.
+# $PORTFILE is located in the while loop.
+PORTFILE=$(echo UI_PORT.xml)
+TEMPFILE=$(echo CONVERTUI.xml)
+	if [ ! -f "${PORT_UI}"/"${TEMPFILE}" ]; then
+		touch "${PORT_UI}"/"${TEMPFILE}"
+	else
+		rm -f "${PORT_UI}"/"${TEMPFILE}"
+		touch "${PORT_UI}"/"${TEMPFILE}"
+	fi
+
+# Add my signature before we begin.
+# This is my work after all.
+# Only the original TWRP authors to the original TWRP themes have my permission to remove this signature.
+# If you are porting someone else's work using this script then this signature will remain intact.
+old=$(cat "${PORT_UI}"/ui.xml | egrep -o '<description>[0-9 A-Z a-z]+</description>' | egrep -o '[0-9 A-Z a-z]+<' | egrep -o '[0-9 A-Z a-z]+')
+sed -i "s/$old/$old Ported By Modding.MyMind/g" "${PORT_UI}"/ui.xml
+
+# Read the ui.xml file so we can find the proper values for a successful port.
+# Pipe in echo to insure the last line 'EOF' is read and the script doesn't quit on it.
+# Add 'IFS=' to insure each line read still contains it's tabs.
+clear; { cat "${PORT_UI}"/ui.xml; echo; } | while IFS= read -r line; do
+	if [ -f "${PORT_UI}"/"${PORTFILE}" ]; then
+		ECHO=$(cat "${PORT_UI}"/"${TEMPFILE}")
+		echo "$ECHO" >> "${PORT_UI}"/"${PORTFILE}"
+		# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
+		wait </dev/tty
+	else
+		touch "${PORT_UI}"/"${PORTFILE}"
+	fi
+echo "$line" > "${PORT_UI}"/"${TEMPFILE}"
+# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
+wait </dev/tty
+# Search for x values.
+XX() {
+	X=$(echo "$line" | egrep -o ' x="[0-9]+" ' | egrep -o '[0-9]+')
+	XCHECK=$(echo "$line" | egrep -o ' x="[0-9]+" ')
+		if [ -z "$XCHECK" -o "$X" == "0" ]; then
+			# Dump empty value.
+			echo null > /dev/null
+			# Call the YY function.
+			YY
+		else
+			# Save the value in a variable.
+			X_CONFIRM=$(echo "$X")
+			# Need this variable to calculate.
+			SIZEW=$(echo "$X_CONFIRM")
+			CALCULATE_WIDTH
+			echo "Porting x='$X_CONFIRM' to x='$FINALW'"
+			SED_CHANGE_WORD "$X_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the YY function.
+			YY
+		fi
+}
+# Search for y values.
+YY() {
+	Y=$(echo "$line" | egrep -o ' y="[0-9]+" ' | egrep -o '[0-9]+')
+	YCHECK=$(echo "$line" | egrep -o ' y="[0-9]+" ')
+		if [ -z "$YCHECK" -o "$Y" == "0" ]; then
+			# Dump empty value.
+			echo null > /dev/null
+			# Call the WWIDTH function.
+			WWIDTH
+		else
+			# Save the value in a variable.
+			Y_CONFIRM=$(echo "$Y")
+			# Need this variable to calculate.
+			SIZEH=$(echo "$Y_CONFIRM")
+			CALCULATE_HEIGHT
+			echo "Porting y='$Y_CONFIRM' to y='$FINALH'"
+			SED_CHANGE_WORD "$Y_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the WWIDTH function.
+			WWIDTH
+		fi
+}
+# Search for width 'width=' values.
+WWIDTH() {
+	WIDTH=$(echo "$line" | egrep -o ' width="[0-9]+" ' | egrep -o '[0-9]+')
+	WIDTHCHECK=$(echo "$line" | egrep -o ' width="[0-9]+" ')
+		if [ -z "$WIDTHCHECK" -o "$WIDTH" == "0" ]; then
+			# Dump empty values.
+	 		echo null > /dev/null
+			# Call the HHEIGHT function.
+			HHEIGHT
+		else
+			# Save the value in a variable.
+			WIDTH_CONFIRM=$(echo "$WIDTH")
+			# Need this variable to calculate.
+			SIZEW=$(echo "$WIDTH_CONFIRM")
+			CALCULATE_WIDTH
+			echo "Porting width='$WIDTH_CONFIRM' to width='$FINALW'"
+			SED_CHANGE_WORD "$WIDTH_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the HHEIGHT function.
+			HHEIGHT
+		fi
+}
+# Search for height 'height=' values.
+HHEIGHT() {
+	HEIGHT=$(echo "$line" | egrep -o ' height="[0-9]+" ' | egrep -o '[0-9]+')
+	HEIGHTCHECK=$(echo "$line" | egrep -o ' height="[0-9]+" ')
+		if [ -z "$HEIGHTCHECK" -o "$HEIGHT" == "0" ]; then
+			# Dump empty values.
+			echo null > /dev/null
+			# Call the HH function.
+			HH
+		else
+			# Save the value in a variable.
+			HEIGHT_CONFIRM=$(echo "$HEIGHT")
+			# Need this variable to calculate.
+			SIZEH=$(echo "$HEIGHT_CONFIRM")
+			CALCULATE_HEIGHT
+			echo "Porting height='$HEIGHT_CONFIRM' to height='$FINALH'"
+			SED_CHANGE_WORD "$HEIGHT_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the HH function.
+			HH
+		fi
+}
+# Search for height 'h=' values.
+HH() {
+	H=$(echo "$line" | egrep -o ' h="[0-9]+" ' | egrep -o '[0-9]+')
+	HCHECK=$(echo "$line" | egrep -o ' h="[0-9]+" ')
+		if [ -z "$HCHECK" -o "$H" == "0" ]; then
+			# Dump empty values.
+			echo null > /dev/null
+			# Call the WW function.
+			WW
+		else
+			# Save the value in a variable.
+			H_CONFIRM=$(echo "$H")
+			# Need this variable to calculate.
+			SIZEH=$(echo "$H_CONFIRM")
+			CALCULATE_HEIGHT
+			echo "Porting h='$H_CONFIRM' to h='$FINALH'"
+			SED_CHANGE_WORD "$H_CONFIRM" "$FINALH" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the WW function.
+			WW
+		fi
+}
+# Search for width 'w=' values.
+WW() {
+	W=$(echo "$line" | egrep -o ' w="[0-9]+" ' | egrep -o '[0-9]+')
+	WCHECK=$(echo "$line" | egrep -o ' w="[0-9]+" ')
+		if [ -z "$WCHECK" -o "$W" == "0" ]; then
+			# Dump empty values.
+			echo null > /dev/null
+			# Call the VVALUE_OVERHAUL function.
+			VVALUE_OVERHAUL
+		else
+			# Save the value in a variable.
+			W_CONFIRM=$(echo "$W")
+			# Need this variable to calculate.
+			SIZEW=$(echo "$W_CONFIRM")
+			CALCULATE_WIDTH
+			echo "Porting w='$W_CONFIRM' to w='$FINALW'"
+			SED_CHANGE_WORD "$W_CONFIRM" "$FINALW" "${PORT_UI}"/"${TEMPFILE}"
+			# Call the VVALUE_OVERHAUL function.
+			VVALUE_OVERHAUL
+		fi
+}
+# Search for 'value' values which can be recognized by a special character and handled automatically.
+# Set variables for easy identification.
+# Use if, elif, and else statement to process each outcome.
+# Set human answer then call the DONT_KNOW_JACK function
+VVALUE_OVERHAUL() {
+	VARIABLE_NAME_X=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x" ')
+	VARIABLE_NAME_X2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_x_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VARIABLE_NAME_Y=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y" ')
+	VARIABLE_NAME_Y2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_y_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VARIABLE_NAME_W=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w" ')
+	VARIABLE_NAME_W2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_w_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VARIABLE_NAME_H=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h" ')
+	VARIABLE_NAME_H2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_h_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VARIABLE_NAME_WIDTH=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width" ')
+	VARIABLE_NAME_WIDTH2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_width_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VARIABLE_NAME_HEIGHT=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height" ')
+	VARIABLE_NAME_HEIGHT2=$(echo "$line" | egrep -o 'variable name="[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+_height_[0-9a-zA-Z0-9_0-9a-zA-Z0-9]+" ')
+	VALUE_CONFIRM=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
+		if [ -n "$VARIABLE_NAME_X" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_X2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_Y" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_Y2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_W" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_W2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_H" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_H2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_WIDTH" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_WIDTH2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=w
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_HEIGHT" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		elif [ -n "$VARIABLE_NAME_HEIGHT2" -a "$VALUE_CONFIRM" -gt 0 -a "$VALUE_CONFIRM" -gt 1 ]; then
+			HUMAN_ANSWER=h
+			DONT_KNOW_JACK
+		else
+			# Call on VVALUE function.
+			VVALUE
+		fi
+}
+# Search for 'value' values. These values are a special case and will require the user to decide.
+VVALUE() {
+	VALUE=$(echo "$line" | egrep -o ' value="[0-9]+" ' | egrep -o '[0-9]+')
+	VALUECHECK=$(echo "$line" | egrep -o ' value="[0-9]+" ')
+		if [ -z "$VALUECHECK" -o "$VALUE" == "0" -o "$VALUE" == "1" ]; then
+			# Dump empty values.
+			echo null > /dev/null
+		else
+			# Save the value in a variable.
+			VALUE_CONFIRM=$(echo "$VALUE")
+			echo " "
+			echo The value below must be determined by the human mind!
+			echo " "
+			# Don't quote $line for easy reading.
+			echo $line
+			echo "Please type and enter, W for width or H for height:"
+			read HUMAN_ANSWER </dev/tty
+			# Call the YOUR_MIND function.
+			YOUR_MIND
+		fi
+}
+YOUR_MIND() {
+	if [ "$HUMAN_ANSWER" == "w" -o "$HUMAN_ANSWER" == "h" -o "$HUMAN_ANSWER" == "W" -o "$HUMAN_ANSWER" == "H" ]; then
+		# Call the DONT_KNOW_JACK function.
+	 	DONT_KNOW_JACK
+	else
+	 	echo " "
+	 	echo "Please enter either W for Width or H for Height!"
+	 	echo "Press ANY key to try again!"
+	 	read -n 1 any_key </dev/tty
+		# Call the VVALUE function.
+	 	VVALUE
+	fi
+}
+# OUT OF ALL THE VALUES TO BE DETECTED WE WILL BEGIN ON CALLING THE XX FUNCTION!
+XX
+# The script needs to be put on hold to insure it echoes accordingly and does not overlook any lines.
+wait </dev/tty ;
+done
+# Remove temporary file after while loop has finished.
+rm -f "${PORT_UI}"/"${TEMPFILE}"
+}
+
+# Have user input both resolutions and the storage location of the theme to be ported.
+# If input is invalid then loop back to the function until they get it right.
+BASE_DEVICE() {
+	clear; echo "TWRP Theme Porter - version 2.0"
+	echo " "
+	echo "Enter your resolution, ex. 480x800:"
+	read BASE_RESOLUTION
+	B_RES_W=$(echo "$BASE_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+	B_RES_H=$(echo "$BASE_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+	BASE_RESOLUTION_CHECK=$(echo "$B_RES_W"'x'"$B_RES_H")
+		if [ "$BASE_RESOLUTION" == "$BASE_RESOLUTION_CHECK" ] ; then
+ 			# Your Resolution
+ 			BASEW=$(echo "$B_RES_W")
+ 			BASEH=$(echo "$B_RES_H")
+		else
+			echo " "
+			echo "Please input correct layout for your resolution."
+			echo "An example would be, 480x800."
+			echo " "
+			echo "Press ANY key when ready..."
+			read -n1 any_key
+			clear; BASE_DEVICE
+		fi
+}
+
+PORT_DEVICE() {
+	clear; echo "TWRP Theme Porter - version 2.0"
+	echo " "
+	echo "Enter their resolution, ex. 720x1280:"
+	read PORT_RESOLUTION
+	P_RES_W=$(echo "$PORT_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
+	P_RES_H=$(echo "$PORT_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
+	PORT_RESOLUTION_CHECK=$(echo "$P_RES_W"'x'"$P_RES_H")
+		if [ "$PORT_RESOLUTION" == "$PORT_RESOLUTION_CHECK" ] ; then
+ 			# Their Resolution
+ 			PORTW=$(echo "$P_RES_W")
+ 			PORTH=$(echo "$P_RES_H")
+		else
+			echo " "
+			echo "Please input correct layout for their resolution."
+			echo "An example would be, 720x1280."
+			echo " "
+			echo "Press ANY key when ready..."
+			read -n1 any_key
+			clear; PORT_DEVICE
+		fi
+}
+
+THEME_DIRECTORY() {
+	clear; echo "TWRP Theme Porter - version 2.0"
+	echo " "
+	echo "Enter directory to the theme, ex. /sdcard/TWRP:"
+	read PORT_THEME
+		# Check to see if directory exists
+		if [ -d "${PORT_THEME}" ] ; then
+ 			PORT_UI=$(echo "${PORT_THEME}")
+ 			P_IMAGES=$(echo "${PORT_THEME}")
+		else
+			echo " "
+			echo ""${PORT_THEME}" is not a directory"
+			echo " "
+			echo "Press ANY key when ready..."
+			read -n1 any_key
+			clear; THEME_DIRECTORY
+		fi
+}
+
+# Is gm and busybox installed?
+CHECKGM=$(command -v gm)
+CHECKBUSYBOX=$(command -v busybox)
+if [ ! $CHECKGM ]; then
+		echo "GraphicsMagick is not installed!"
+		echo "Please install - aborting script!"; read; exit
+	elif [ ! $CHECKBUSYBOX ]; then
+		echo "Busybox is not installed!"
+		echo "Please install - aborting script!"; read; exit
+	else
+		#Call on functions
+		THEME_DIRECTORY
+		BASE_DEVICE
+		PORT_DEVICE
+fi;
+
+clear; echo "TWRP Theme Porter - version 2.0"
+echo " "
+echo "Please select your option:"
+echo "1. Port TWRP Images"
+echo "2. Port TWRP ui.xml"
+echo "3. Port Both"
+echo "Q/q - Exit Script"
+read OPT
+case $OPT in
+	1) GOTOTWRPIMAGE ;;
+	2) GOTOTWRPUI ;;
+	3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
+	Q) clear; echo "Goodbye"; read; exit;;
+	q) clear; echo "Goodbye"; read; exit;;
+esac
