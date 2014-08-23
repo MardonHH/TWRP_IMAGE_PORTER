@@ -2,7 +2,9 @@ TWRP_THEME_PORTER
 ==================
 
 Written by Modding.MyMind/ModdingMyMind
+
 XDA Senior Member ©2014
+
 AF Senior Member/Guide ©2014
 
 Please read all README.md files.
