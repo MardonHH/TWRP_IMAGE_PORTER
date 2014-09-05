@@ -6,6 +6,22 @@
 
 VERSION=3.1
 
+# Check Root Status on devices.
+ROOTCHECK=$(whoami 2>&1 | awk '{ print $4 }')
+
+if [[ $ROOTCHECK -eq "0" ]]; then
+	SU=
+	if [[ ! -e $(command -v su) ]]; then
+		echo "TWRP Theme Porter - version $(echo "$VERSION")"
+		echo " "
+		echo "Your device must be rooted!"
+		sleep 3
+		exit 0
+	fi
+else
+	SU="su -c"
+fi
+
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
 clear; find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg" | while read line; do
@@ -499,7 +515,7 @@ else
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
-		4) busybox mount -o remount,rw -t auto /system; rm -f "/system/bin/gm"; busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
+		4) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
 		Q) clear; echo "Goodbye"; read; exit;;
 		q) clear; echo "Goodbye"; read; exit;;
 	esac
@@ -518,27 +534,27 @@ else
 
 	sleep 2
 
-	TMPDIR=`mkdir /data/local/tmp/selfextract.MyMind`
+	TMPDIR=`$SU mkdir /data/local/tmp/selfextract.MyMind`
 	TMPDIR2="/data/local/tmp/selfextract.MyMind"
 
 	ARCHIVE=`awk '/^__EMBEDDED_DATA_BELOW__/ {print NR + 1; exit 0; }' $0`
 
-	tail -n+$ARCHIVE $0 | tar -xzv -C "$TMPDIR2"
+	$SU tail -n+$ARCHIVE $0 | $SU tar -xzv -C "$TMPDIR2"
 
-	chmod -R 755 "$TMPDIR2"
+	$SU chmod -R 755 "$TMPDIR2"
 
 	# Mount system as RW.
-	busybox mount -o remount,rw -t auto /system
+	$SU busybox mount -o remount,rw -t auto /system
 
-	busybox mv "$TMPDIR2"/gm "/system/bin/gm"
+	$SU busybox mv "$TMPDIR2"/gm "/system/bin/gm"
 
 	CDIR=`pwd`
 
 	cd $CDIR
-	rm -r "$TMPDIR2"
+	$SU rm -r "$TMPDIR2"
 
 	# Mount system as RO.
-	busybox mount -o remount,ro -t auto /system
+	$SU busybox mount -o remount,ro -t auto /system
 
 	echo " "
 	echo "GraphicsMagick has been installed!"
