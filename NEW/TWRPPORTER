@@ -399,7 +399,8 @@ BASE_DEVICE() {
 	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
 	echo " "
 	echo "Enter your resolution, ex. 480x800:"
-	read BASE_RESOLUTION
+	echo " "
+	read -p "Base Resolution: " BASE_RESOLUTION
 	B_RES_W=$(echo "$BASE_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
 	B_RES_H=$(echo "$BASE_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
 	BASE_RESOLUTION_CHECK=$(echo "$B_RES_W"'x'"$B_RES_H")
@@ -422,7 +423,8 @@ PORT_DEVICE() {
 	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
 	echo " "
 	echo "Enter their resolution, ex. 720x1280:"
-	read PORT_RESOLUTION
+	echo " "
+	read -p "Port Resolution: " PORT_RESOLUTION
 	P_RES_W=$(echo "$PORT_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
 	P_RES_H=$(echo "$PORT_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
 	PORT_RESOLUTION_CHECK=$(echo "$P_RES_W"'x'"$P_RES_H")
@@ -493,7 +495,8 @@ if [ ! $CHECKGM ]; then
 	echo "3. Port Both"
 	echo "4. Install GraphicsMagick"
 	echo "Q/q - Exit Script"
-	read OPT
+	echo " "
+	read -p "Option: " OPT
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
@@ -511,7 +514,8 @@ else
 	echo "3. Port Both"
 	echo "4. Uninstall GraphicsMagick"
 	echo "Q/q - Exit Script"
-	read OPT
+	echo " "
+	read -p "Option: " OPT
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
