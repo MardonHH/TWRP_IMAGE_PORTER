@@ -6,23 +6,6 @@
 
 VERSION=3.1
 
-# Check Root Status on devices.
-ROOTCHECK=$(whoami 2>&1 | awk '{ print $4 }')
-
-if [[ -e $(command -v su) ]]; then
-	if [[ $ROOTCHECK -eq "0" ]]; then
-		SU=
-	else
-		SU="su -c"
-	fi
-else
-	echo "TWRP Theme Porter - version $(echo "$VERSION")"
-	echo " "
-	echo "Your device must be rooted!"
-	sleep 3
-	exit 0
-fi
-
 GOTOTWRPIMAGE() {
 # Find the images to be ported.
 clear; find "${P_IMAGES}" -type f -iname "*.png" -o -iname "*.jpg" | while read line; do
@@ -463,27 +446,56 @@ THEME_DIRECTORY() {
 		fi
 }
 
-# Is gm and busybox installed?
-CHECKGM=`command -v gm`
-CHECKBUSYBOX=`command -v busybox`
-if [ ! $CHECKBUSYBOX ]; then
-		echo " "
-		echo "Busybox is not installed!"
-		echo "Please install Busybox - aborting script!"; read; exit
-	elif [ ! $CHECKGM ]; then
-		clear; echo " "
-		echo "GraphicsMagick is not installed!"
-		echo "Please install! Or option 1 will fail!"; sleep 4
-		#Call on functions
-		THEME_DIRECTORY
-		BASE_DEVICE
-		PORT_DEVICE
+# Is Busybox and GM installed?
+# Check Root Status on devices.
+
+if [[ -e $(command -v busybox) ]]; then
+	ROOTCHECK=$(whoami 2>&1 | awk '{ print $4 }')
+	if [[ $(command -v su) ]]; then
+		if [[ $ROOTCHECK -eq "0" ]]; then
+			SU=
+			if [[ -e $(command -v gm) ]]; then
+				echo null > /dev/null
+			else
+				clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+				echo " "
+				echo "GraphicsMagick is not installed!"
+				echo "It is required to port TWRP Images!"
+				sleep 5
+			fi
+		else
+			SU="su -c"
+			if [[ -e $(command -v gm) ]]; then
+				echo null > /dev/null
+			else
+				clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+				echo " "
+				echo "GraphicsMagick is not installed!"
+				echo "It is required to port TWRP Images!"
+				sleep 5
+			fi
+		fi
 	else
-		#Call on functions
-		THEME_DIRECTORY
-		BASE_DEVICE
-		PORT_DEVICE
-fi;
+		clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+		echo " "
+		echo "Your device must be rooted!"
+		sleep 4
+		clear; exit 0
+	fi
+else
+	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+	echo " "
+	echo "Busybox is not installed! Aborting!"
+	sleep 4
+	clear; exit 0
+fi
+
+
+#Call on functions
+THEME_DIRECTORY
+BASE_DEVICE
+PORT_DEVICE
+
 
 HEADSUP() {
 CHECKGM=`command -v gm`
@@ -520,8 +532,8 @@ if [ ! $CHECKGM ]; then
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
 		4) INSTALLGM ;;
-		Q) clear; echo "Goodbye"; read; exit;;
-		q) clear; echo "Goodbye"; read; exit;;
+		Q) clear; echo "Goodbye"; read; clear; exit;;
+		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
 else
 	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
@@ -556,8 +568,8 @@ else
 		2) GOTOTWRPUI ;;
 		3) GOTOTWRPIMAGE && GOTOTWRPUI ;;
 		4) $SU busybox mount -o remount,rw -t auto /system; $SU rm -f "/system/bin/gm"; $SU busybox mount -o remount,ro -t auto /system; clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"; echo " "; echo "GraphicsMagick is uninstalled!"; sleep 3; HEADSUP ;;
-		Q) clear; echo "Goodbye"; read; exit;;
-		q) clear; echo "Goodbye"; read; exit;;
+		Q) clear; echo "Goodbye"; read; clear; exit;;
+		q) clear; echo "Goodbye"; read; clear; exit;;
 	esac
 fi
 }
