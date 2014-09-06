@@ -400,7 +400,7 @@ BASE_DEVICE() {
 	echo " "
 	echo "Enter your resolution, ex. 480x800:"
 	echo " "
-	read -p "Base Resolution: " BASE_RESOLUTION
+	read "BASE_RESOLUTION?Base Resolution: "
 	B_RES_W=$(echo "$BASE_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
 	B_RES_H=$(echo "$BASE_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
 	BASE_RESOLUTION_CHECK=$(echo "$B_RES_W"'x'"$B_RES_H")
@@ -424,7 +424,7 @@ PORT_DEVICE() {
 	echo " "
 	echo "Enter their resolution, ex. 720x1280:"
 	echo " "
-	read -p "Port Resolution: " PORT_RESOLUTION
+	read "PORT_RESOLUTION?Port Resolution: "
 	P_RES_W=$(echo "$PORT_RESOLUTION" | egrep -o '[0-9]+x' | egrep -o '[0-9]+')
 	P_RES_H=$(echo "$PORT_RESOLUTION" | egrep -o 'x[0-9]+' | egrep -o '[0-9]+')
 	PORT_RESOLUTION_CHECK=$(echo "$P_RES_W"'x'"$P_RES_H")
@@ -447,7 +447,8 @@ THEME_DIRECTORY() {
 	clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
 	echo " "
 	echo "Enter directory to the theme, ex. /sdcard/TWRP:"
-	read PORT_THEME
+	echo " "
+	read "PORT_THEME?Enter Path: "
 		# Check to see if directory exists
 		if [ -d "${PORT_THEME}" ] ; then
  			PORT_UI=$(echo "${PORT_THEME}")
@@ -496,7 +497,24 @@ if [ ! $CHECKGM ]; then
 	echo "4. Install GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
-	read -p "Option: " OPT
+	read "OPT?Option: "
+	if [[ ! $OPT == "1" ]]; then
+		if [[ ! $OPT == "2" ]]; then
+			if [[ ! $OPT == "3" ]]; then
+				if [[ ! $OPT == "4" ]]; then
+					if [[ ! $OPT == q ]]; then
+						if [[ ! $OPT == Q ]]; then
+							clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+							echo " "
+							echo "Invalid Input: Please try again!"
+							sleep 3
+							HEADSUP
+						fi
+					fi
+				fi
+			fi
+		fi
+	fi
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
@@ -515,7 +533,24 @@ else
 	echo "4. Uninstall GraphicsMagick"
 	echo "Q/q - Exit Script"
 	echo " "
-	read -p "Option: " OPT
+	read "OPT?Option: "
+	if [[ ! $OPT == "1" ]]; then
+		if [[ ! $OPT == "2" ]]; then
+			if [[ ! $OPT == "3" ]]; then
+				if [[ ! $OPT == "4" ]]; then
+					if [[ ! $OPT == q ]]; then
+						if [[ ! $OPT == Q ]]; then
+							clear; echo "TWRP Theme Porter - version $(echo "$VERSION")"
+							echo " "
+							echo "Invalid Input: Please try again!"
+							sleep 3
+							HEADSUP
+						fi
+					fi
+				fi
+			fi
+		fi
+	fi
 	case $OPT in
 		1) GOTOTWRPIMAGE ;;
 		2) GOTOTWRPUI ;;
