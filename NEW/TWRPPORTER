@@ -9,17 +9,18 @@ VERSION=3.1
 # Check Root Status on devices.
 ROOTCHECK=$(whoami 2>&1 | awk '{ print $4 }')
 
-if [[ $ROOTCHECK -eq "0" ]]; then
-	SU=
-	if [[ ! -e $(command -v su) ]]; then
-		echo "TWRP Theme Porter - version $(echo "$VERSION")"
-		echo " "
-		echo "Your device must be rooted!"
-		sleep 3
-		exit 0
+if [[ -e $(command -v su) ]]; then
+	if [[ $ROOTCHECK -eq "0" ]]; then
+		SU=
+	else
+		SU="su -c"
 	fi
 else
-	SU="su -c"
+	echo "TWRP Theme Porter - version $(echo "$VERSION")"
+	echo " "
+	echo "Your device must be rooted!"
+	sleep 3
+	exit 0
 fi
 
 GOTOTWRPIMAGE() {
